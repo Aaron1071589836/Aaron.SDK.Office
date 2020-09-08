@@ -41,18 +41,7 @@ namespace EPPlus.Extension.Excel.Impl.Import
                 return Exceptions != null && Exceptions.Any();
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exception"></param>
-        private void AddException(ImportException exception)
-        {
-            if (null == Exceptions)
-            {
-                Exceptions = new List<ImportException>();
-            }
-            Exceptions.Add(exception);
-        }
+       
         /// <summary>
         /// 
         /// </summary>

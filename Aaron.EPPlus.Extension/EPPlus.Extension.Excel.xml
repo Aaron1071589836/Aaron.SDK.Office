@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>EPPlus.Extension</name>
+        <name>Aaron.EPPlus.Extension</name>
     </assembly>
     <members>
         <member name="T:EPPlus.Extension.Excel.Exceptions.BaseException">
@@ -158,33 +158,6 @@
             <param name="throwException"></param>
             <returns></returns>
         </member>
-        <member name="T:EPPlus.Extension.Excel.Extensions.ExportTemplateExtension">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:EPPlus.Extension.Excel.Extensions.ExportTemplateExtension.WriteTitile``1(OfficeOpenXml.ExcelWorksheet)">
-            <summary>
-            
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="workSheet"></param>
-        </member>
-        <member name="M:EPPlus.Extension.Excel.Extensions.ExportTemplateExtension.ExportTemplate``1(System.String,System.String)">
-            <summary>
-            生成导入模板
-            </summary>
-            <param name="filePath"></param>
-            <param name="sheetName"></param>
-        </member>
-        <member name="M:EPPlus.Extension.Excel.Extensions.ExportTemplateExtension.ExportTemplate``1(System.String)">
-            <summary>
-            
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="sheetName"></param>
-            <returns></returns>
-        </member>
         <member name="T:EPPlus.Extension.Excel.Impl.Export.EPPlusCellsEntity">
             <summary>
             
@@ -285,12 +258,6 @@
             <summary>
             
             </summary>
-        </member>
-        <member name="M:EPPlus.Extension.Excel.Impl.Import.EPPlusCellImporter.AddException(EPPlus.Extension.Excel.Exceptions.ImportException)">
-            <summary>
-            
-            </summary>
-            <param name="exception"></param>
         </member>
         <member name="M:EPPlus.Extension.Excel.Impl.Import.EPPlusCellImporter.#ctor(OfficeOpenXml.ExcelPackage,System.Boolean)">
             <summary>
@@ -395,6 +362,33 @@
             <summary>
             
             </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Aaron.EPPlus.Extension.Utils.ExcelUtil">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Aaron.EPPlus.Extension.Utils.ExcelUtil.WriteTitile``1(OfficeOpenXml.ExcelWorksheet)">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="workSheet"></param>
+        </member>
+        <member name="M:Aaron.EPPlus.Extension.Utils.ExcelUtil.ExportTemplate``1(System.String,System.String)">
+            <summary>
+            生成导入模板
+            </summary>
+            <param name="filePath"></param>
+            <param name="sheetName"></param>
+        </member>
+        <member name="M:Aaron.EPPlus.Extension.Utils.ExcelUtil.ExportTemplate``1(System.String)">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sheetName"></param>
             <returns></returns>
         </member>
     </members>

@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
-namespace EPPlus.Extension.Excel.Extensions
+
+namespace Aaron.EPPlus.Extension.Utils
 {
     /// <summary>
     /// 
     /// </summary>
-    public static class ExportTemplateExtension
+    public class ExcelUtil
     {
         /// <summary>
         /// 

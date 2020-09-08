@@ -170,6 +170,10 @@ namespace EPPlus.Extension.Excel.Extensions
                                 {
                                     value = DateTime.Parse(value.ToString());
                                 }
+                                else if (propertyType.IsEnum)
+                                {
+                                    value = Enum.Parse(propertyType, value.ToString());
+                                }
                                 #endregion
                                 property.SetValue(model, value);
                             }
