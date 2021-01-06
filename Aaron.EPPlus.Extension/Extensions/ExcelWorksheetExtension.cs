@@ -144,6 +144,11 @@ namespace EPPlus.Extension.Excel.Extensions
             {
                 try
                 {
+                    var isNull = CheckRowIsNull(worksheet, colCount, rowIndex);
+                    if (isNull)
+                    {
+                        break;
+                    }
                     T model = ConvertDto<T>(worksheet, columns, titles, rowIndex);
                     list.Add(model);
                 }
@@ -161,6 +166,19 @@ namespace EPPlus.Extension.Excel.Extensions
                 }
             }
             return (list, _exceptions);
+        }
+
+        private static bool CheckRowIsNull(ExcelWorksheet worksheet, int colCount, int rowIndex)
+        {
+            for (int colIndex = 1; colIndex < colCount; colIndex++)
+            {
+                var cell = worksheet.Cells[rowIndex, colIndex];
+                if (cell.Value != null)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>

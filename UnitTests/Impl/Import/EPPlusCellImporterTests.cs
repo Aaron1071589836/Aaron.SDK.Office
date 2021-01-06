@@ -21,7 +21,7 @@ namespace EPPlus.Extension.Excel.Impl.Import.Tests
                 //}
                 using (var importor = new EPPlusCellImporter(@"E:\下载\QQ\工资导入模板12-带颜色.xlsx"))
                 {
-                    var datas = importor.ConvertToModels<SalaryRecordImportModel>(1, throwException: true);
+                    var datas = importor.ConvertToModels<SalaryRecordImportModel>(1);
                     Console.WriteLine();
                 }
             }
