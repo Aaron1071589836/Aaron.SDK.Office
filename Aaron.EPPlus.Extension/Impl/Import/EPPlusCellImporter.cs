@@ -41,7 +41,7 @@ namespace EPPlus.Extension.Excel.Impl.Import
                 return Exceptions != null && Exceptions.Any();
             }
         }
-       
+
         /// <summary>
         /// 
         /// </summary>
@@ -77,12 +77,16 @@ namespace EPPlus.Extension.Excel.Impl.Import
             this.excelPackage = new ExcelPackage(file);
             this.throwException = throwException;
         }
+
         /// <summary>
-        /// 
+        /// 转换为Dto
         /// </summary>
-        /// <typeparam name="T"></typeparam>      
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sheetIndex">workSheet</param>
+        /// <param name="startRowNum">数据开始行</param>
+        /// <param name="throwException">是否直接抛出异常</param>
         /// <returns></returns>
-        public List<T> ConvertToModels<T>(int sheetIndex = 0, int startRowNum = 2, bool throwException = true) where T : class, new()
+        public List<T> ConvertToModels<T>(int sheetIndex = 0, int startRowNum = 2, bool throwException = false) where T : class, new()
         {
             ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets[sheetIndex];
             var (list, err) = worksheet.ConvertToModels<T>(startRowNum, throwException);
@@ -98,6 +102,17 @@ namespace EPPlus.Extension.Excel.Impl.Import
                 }
             }
             return list;
+        }
+        /// <summary>
+        /// 转换为DataTable
+        /// </summary>
+        /// <param name="sheetIndex"></param>
+        /// <param name="startRowNum"></param>
+        /// <returns></returns>
+        public DataTable WorksheetToTable(int sheetIndex = 0, int startRowNum = 2)
+        {
+            ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets[sheetIndex];
+            return worksheet.WorksheetToTable(startRowNum);
         }
 
         /// <summary>

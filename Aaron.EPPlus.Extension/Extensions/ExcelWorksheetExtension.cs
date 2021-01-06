@@ -17,44 +17,94 @@ namespace EPPlus.Extension.Excel.Extensions
     public static class ExcelWorksheetExtension
     {
         /// <summary>
+        /// 获取标题名
+        /// </summary>
+        /// <param name="Cells"></param>
+        /// <param name="rowIndex"></param>
+        /// <param name="colIndex"></param>
+        /// <returns></returns>
+        private static string GetTitle(this ExcelRange Cells, int rowIndex, int colIndex)
+        {
+            Regex regex = new Regex("\\([^()]*\\)");
+            var cell = Cells[rowIndex, colIndex];
+            string columnName;
+
+            List<string> parantColNames = new List<string>();
+            for (int index = rowIndex; index > 1; index--)
+            {
+                var parantColName = Cells.GetTitle(index, colIndex);
+                parantColNames.Add(parantColName);
+            }
+
+            if (cell != null && cell.Value != null)
+            {
+                columnName = cell.Value.ToString();
+                columnName = regex.Replace(columnName, "").Trim('*').Trim();
+            }
+            else
+            {
+                columnName = $"untitled{colIndex}";
+            }
+
+            return columnName;
+        }
+
+        /// <summary>
+        /// 获取标题
+        /// </summary>
+        /// <param name="worksheet"></param>
+        /// <param name="titleRowNum">title结束行</param>
+        /// <param name="colCount"></param>
+        /// <returns></returns>
+        private static Dictionary<int, string> GetTitles(this ExcelWorksheet worksheet, int titleRowNum, int colCount)
+        {
+            Dictionary<int, string> columns = new Dictionary<int, string>();
+            for (int colIndex = 1; colIndex <= colCount; colIndex++)
+            {
+                string columnName = GetTitle(worksheet.Cells, titleRowNum, colIndex);
+                columns.Add(colIndex, columnName);
+            }
+            return columns;
+        }
+
+        /// <summary>
         /// 将worksheet转成datatable 
         /// </summary>
-        /// <param name="worksheet">待处理的worksheet</param>        
+        /// <param name="worksheet">待处理的worksheet</param>
+        /// <param name="startRowNum"></param>        
         /// <returns>返回处理后的datatable</returns>
-        public static DataTable WorksheetToTable(this ExcelWorksheet worksheet)
+        public static DataTable WorksheetToTable(this ExcelWorksheet worksheet, int startRowNum = 2)
         {
             //获取worksheet的行数
-            int rows = worksheet.Dimension.End.Row;
+            int rowCount = worksheet.Dimension.End.Row;
             //获取worksheet的列数
-            int cols = worksheet.Dimension.End.Column;
+            int colCount = worksheet.Dimension.End.Column;
 
+            //获取标题
+            var columns = worksheet.GetTitles(startRowNum - 1, colCount);
             DataTable dt = new DataTable(worksheet.Name);
-            DataRow dr = null;
-            for (int i = 1; i <= rows; i++)
+            //设置标题
+            for (int colIndex = 1; colIndex <= colCount; colIndex++)
             {
-                if (i > 1)
-                    dr = dt.Rows.Add();
+                var columnName = columns[colIndex];
+                dt.Columns.Add(columnName);
+            }
 
-                for (int j = 1; j <= cols; j++)
+            for (int rowIndex = startRowNum; rowIndex <= rowCount; rowIndex++)
+            {
+                //新增行
+                DataRow dr = dt.Rows.Add();
+                for (int colIndex = 1; colIndex <= colCount; colIndex++)
                 {
-                    if (i == 1)
-                    {
-                        //默认将第一行设置为datatable的标题
-                        var cell = worksheet.Cells[i, j];
-                        dt.Columns.Add(cell?.Value.ToString());
-                    }
-                    else
-                    {
-                        //剩下的写入datatable
-                        dr[j - 1] = worksheet.Cells[i, j].Value;
-                    }
+                    //剩下的写入Datatable
+                    dr[colIndex - 1] = worksheet.Cells[rowIndex, colIndex].Value;
                 }
             }
             return dt;
         }
 
         /// <summary>
-        /// 
+        /// Worksheet转List 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="worksheet"></param>
@@ -67,23 +117,14 @@ namespace EPPlus.Extension.Excel.Extensions
             int rowCount = worksheet.Dimension.End.Row;
             //获取worksheet的列数
             int colCount = worksheet.Dimension.End.Column;
+
             if (rowCount <= startRowNum - 1 || colCount == 0)
             {
                 return (null, null);
             }
-            //默认将第一行设置为标题
-            Dictionary<int, string> columns = new Dictionary<int, string>();
-            Regex regex = new Regex("\\([^()]*\\)");
-            for (int colIndex = 1; colIndex <= colCount; colIndex++)
-            {
-                var cell = worksheet.Cells[startRowNum - 1, colIndex];
-                var val = cell?.Value.ToString();
-                if (!string.IsNullOrWhiteSpace(val))
-                {
-                    var columnName = regex.Replace(val, "").Trim();//去掉从excel导入进来的表头包含(*)等ui提醒文字
-                    columns.Add(colIndex, columnName);
-                }
-            }
+
+            //获取标题
+            var columns = worksheet.GetTitles(startRowNum - 1, colCount);
 
             var _exceptions = new List<ImportException>();
             var type = typeof(T);
@@ -104,7 +145,6 @@ namespace EPPlus.Extension.Excel.Extensions
                 try
                 {
                     T model = ConvertDto<T>(worksheet, columns, titles, rowIndex);
-
                     list.Add(model);
                 }
                 catch (ImportException ex)
@@ -123,6 +163,15 @@ namespace EPPlus.Extension.Excel.Extensions
             return (list, _exceptions);
         }
 
+        /// <summary>
+        /// Worksheet转DataTable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="worksheet"></param>
+        /// <param name="columns"></param>
+        /// <param name="titles"></param>
+        /// <param name="rowIndex"></param>
+        /// <returns></returns>
         private static T ConvertDto<T>(ExcelWorksheet worksheet, Dictionary<int, string> columns, Dictionary<PropertyInfo, string> titles, int rowIndex) where T : class, new()
         {
             T model = new T();
@@ -197,7 +246,11 @@ namespace EPPlus.Extension.Excel.Extensions
                             if (!attr.IsValid(value))
                             {
                                 var errorMsg = $"{attr.ErrorMessage}";
-                                throw new ImportException(attr.ErrorMessage) { PropertyName = property.Name, PropertyDescription = name, RowNum = colNum };
+                                if (!string.IsNullOrWhiteSpace(errorMsg))
+                                {
+                                    errorMsg = attr.FormatErrorMessage(name);
+                                }
+                                throw new ImportException(errorMsg) { PropertyName = property.Name, PropertyDescription = name, RowNum = colNum };
                             }
                         }
                     }
